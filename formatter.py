@@ -5,7 +5,7 @@ def format_plan(raw_text: str, target_date: str = None) -> str:
     lines = []
     for line in raw_text.splitlines():
         for part in line.split(","):
-            cleaned = part.strip()
+            cleaned = part.strip().capitalize()
             if cleaned:
                 lines.append(cleaned)
 
