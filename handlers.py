@@ -37,7 +37,7 @@ async def receive_plan(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         combined_raw = new_raw
 
-    formatted = format_plan(combined_raw)
+    formatted = format_plan(combined_raw, target_date=tomorrow)
     await save_plan_for_date(tomorrow, combined_raw, formatted)
 
     await update.message.reply_text(
