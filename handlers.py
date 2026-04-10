@@ -65,6 +65,29 @@ async def send_morning_reminder(context: ContextTypes.DEFAULT_TYPE):
         text=message,
         parse_mode="Markdown"
     )
+    
+async def view_plan(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Shows tomorrow's saved plan"""
+    if update.effective_chat.id != CHAT_ID:
+        return
+
+    from datetime import date, timedelta
+    tomorrow = (date.today() + timedelta(days=1)).isoformat()
+
+    plan = await get_raw_plan_for_date(tomorrow)
+
+    if plan:
+        from formatter import format_plan
+        formatted = format_plan(plan, target_date=tomorrow)
+        await update.message.reply_text(
+            f"📋 *Here's your plan for tomorrow:*\n\n{formatted}",
+            parse_mode="Markdown"
+        )
+    else:
+        await update.message.reply_text(
+            "📭 *No plan saved for tomorrow yet.*\n\nJust send me a message to add one!",
+            parse_mode="Markdown"
+        )
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handles the /start command"""

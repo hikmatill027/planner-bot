@@ -15,6 +15,7 @@ from handlers import (
     request_plan,
     receive_plan,
     send_morning_reminder,
+    view_plan,
     WAITING_FOR_PLAN
 )
 
@@ -49,6 +50,7 @@ async def main():
     # 4. Register handlers
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("plan", request_plan))
+    app.add_handler(CommandHandler("view", view_plan))
     app.add_handler(conversation)
 
     # 5. Start the scheduler
