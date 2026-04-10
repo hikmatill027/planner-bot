@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
-from db import save_plan, get_raw_plan_for_date
+from db import save_plan_for_date, get_raw_plan_for_date
 from formatter import format_plan
 from config import CHAT_ID
 
@@ -21,24 +21,13 @@ async def receive_plan(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_chat.id != CHAT_ID:
         return ConversationHandler.END
 
-    # Time restriction — only allowed between 7 PM and midnight
-    from datetime import datetime
-    import pytz
-    tz = pytz.timezone("Asia/Tashkent")
-    now = datetime.now(tz)
+    from datetime import date, timedelta
 
-    if not (19 <= now.hour <= 23):
-        await update.message.reply_text(
-            "⛔ You can only add to your plan between *7:00 PM and midnight*.",
-            parse_mode="Markdown"
-        )
-        return ConversationHandler.END
+    # Always save as tomorrow's plan
+    tomorrow = (date.today() + timedelta(days=1)).isoformat()
 
-    from datetime import date
-    today = date.today().isoformat()
-
-    # Fetch existing raw plan if any
-    existing_raw = await get_raw_plan_for_date(today)
+    # Fetch existing plan for tomorrow if any
+    existing_raw = await get_raw_plan_for_date(tomorrow)
 
     new_raw = update.message.text.strip()
 
@@ -49,10 +38,10 @@ async def receive_plan(update: Update, context: ContextTypes.DEFAULT_TYPE):
         combined_raw = new_raw
 
     formatted = format_plan(combined_raw)
-    await save_plan(combined_raw, formatted)
+    await save_plan_for_date(tomorrow, combined_raw, formatted)
 
     await update.message.reply_text(
-        f"✅ *Plan updated!*\n\nHere's your full plan so far:\n\n{formatted}",
+        f"✅ *Plan saved for tomorrow!*\n\nHere's your full plan so far:\n\n{formatted}",
         parse_mode="Markdown"
     )
 
